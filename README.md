@@ -183,3 +183,65 @@ docker-compose down -v
 
 
 <br>
+
+##
+
+<h4> TELAS </h4>
+
+<img src="prints/Captura de tela de 2025-11-14 23-48-15.png">
+
+<p> Tela Buscar Paciente </p>
+
+<ul>
+
+
+
+</ul>
+
+##
+
+
+<br>
+
+<br>
+
+##
+
+<h4> TELAS </h4>
+
+<img src="prints/Captura de tela de 2025-11-14 23-58-31.png">
+
+<p> Tela Notebook desenvolvimento da lógica </p>
+
+<ul>
+
+
+
+</ul>
+
+##
+
+
+<br>
+
+
+<br>
+
+##
+
+<h4> TELAS </h4>
+
+<img src="prints/Captura de tela de 2025-11-14 23-58-13.png">
+
+<p> Tela Servidor e Swagger UI HAPI FHIR </p>
+
+<ul>
+
+
+
+</ul>
+
+##
+
+
+<br>
