@@ -1,9 +1,6 @@
 # desafiofhir
 HL7 FHIR
 
-
-Claro. Este é um exemplo de documentação (o entregável da Parte 1) que você pode salvar como `README.md` na raiz do seu projeto.
-
 -----
 
 # Projeto: Servidor FHIR Local e Pipeline de Dados
