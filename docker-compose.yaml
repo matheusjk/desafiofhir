@@ -1,0 +1,87 @@
+version: '3.8'
+
+# Este docker-compose.yaml configura três serviços principais:
+# 1. db: Um banco de dados PostgreSQL para persistir os dados do FHIR.
+# 2. hapi-fhir: O servidor HAPI FHIR (Open Source) que se conecta ao 'db'.
+# 3. etl-service: Um container com Pyspark e Python pronto para executar seus scripts de carga.
+
+services:
+  # -------------------------------------------
+  # PARTE 1: Servidor FHIR (HAPI FHIR)
+  # -------------------------------------------
+
+  # Serviço do Servidor HAPI FHIR
+  hapi-fhir:
+    image: hapiproject/hapi:latest # Imagem oficial do HAPI FHIR
+    container_name: hapi-fhir
+    ports:
+      - "8080:8080" # Expõe o servidor na porta 8080 do seu host
+    environment:
+      # --- Configuração do FHIR ---
+      - fhir.version=R4 # Define a versão do FHIR (R4 é a mais comum)
+      - fhir.rest.security.enabled=false # Desabilita segurança para fácil acesso local (NÃO USE EM PRODUÇÃO)
+      
+      # --- Configuração da Conexão com o Banco de Dados (Postgres) ---
+      - spring.datasource.url=jdbc:postgresql://fhir-db:5432/hapi # 'fhir-db' é o nome do serviço do banco
+      - spring.datasource.username=hapiuser
+      - spring.datasource.password=hapipassword
+      - spring.datasource.driver-class-name=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+    networks:
+      - fhir-net
+    depends_on:
+      fhir-db:
+        condition: service_healthy # Garante que o HAPI só inicie após o DB estar saudável
+
+  # Serviço do Banco de Dados PostgreSQL
+  fhir-db:
+    image: postgres:14
+    container_name: fhir-db
+    environment:
+      - POSTGRES_DB=hapi
+      - POSTGRES_USER=hapiuser
+      - POSTGRES_PASSWORD=hapipassword # Use uma senha mais forte se preferir
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persiste os dados do banco
+    networks:
+      - fhir-net
+    healthcheck: # Verifica se o Postgres está pronto para aceitar conexões
+      test: ["CMD-SHELL", "pg_isready -U hapiuser -d hapi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -------------------------------------------
+  # PARTE 2: Ambiente para ETL (Pyspark)
+  # -------------------------------------------
+
+  # Serviço para executar o pipeline de carga (Python/Pyspark)
+  etl-service:
+    image: jupyter/pyspark-notebook:latest # Imagem popular que já inclui Python, Spark e libs
+    container_name: etl-service
+    ports:
+      - "8888:8888"
+      - "4040:4040"
+    volumes:
+      # Mapeia sua pasta 'data' local (que contém 'patients.csv')
+      - ./data:/home/jovyan/data
+      # Mapeia sua pasta 'scripts' local (onde você criará o script de carga)
+      - ./scripts:/home/jovyan/scripts
+    working_dir: /home/jovyan/
+    environment:
+      - JUPYTER_TOKEN=12345
+    networks:
+      - fhir-net
+    depends_on:
+      - hapi-fhir
+    command: sleep infinity # Mantém o container rodando para que você possa executar comandos nele
+
+# Define os volumes nomeados
+volumes:
+  postgres_data:
+    driver: local
+
+# Define a rede customizada para os containers se comunicarem
+networks:
+  fhir-net:
+    driver: bridge
