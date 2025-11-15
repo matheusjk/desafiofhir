@@ -162,3 +162,24 @@ Se você quiser parar os serviços E remover o volume do banco de dados (para co
 ```bash
 docker-compose down -v
 ```
+
+<br>
+
+##
+
+<h4> TELAS </h4>
+
+<img src="prints/Captura de tela de 2025-11-14 11-45-49.png">
+
+<p> Tela Swagger UI HAPI FHIR </p>
+
+<ul>
+
+
+
+</ul>
+
+##
+
+
+<br>
